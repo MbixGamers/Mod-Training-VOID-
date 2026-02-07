@@ -9,7 +9,7 @@ export const Results = () => {
   const { score, passed, answers } = location.state || {};
 
   if (!score && score !== 0) {
-    navigate('/home');
+    navigate('/');
     return null;
   }
 
@@ -94,7 +94,7 @@ export const Results = () => {
 
         <div className="flex justify-center gap-4">
           <Button
-            onClick={() => navigate('/home')}
+            onClick={() => navigate('/')}
             data-testid="back-home-button"
             className="bg-violet-600 hover:bg-violet-700 text-white font-medium py-2.5 px-6 rounded-md transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] flex items-center gap-2"
           >

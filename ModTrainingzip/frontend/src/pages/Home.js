@@ -152,13 +152,15 @@ export const Home = () => {
           <p className="text-zinc-500">Welcome, {user?.user_metadata?.name || user?.email}</p>
           
           <div className="flex gap-4 justify-center mt-6">
-            <Button
-              onClick={handleAdminClick}
-              data-testid="admin-portal-button"
-              className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2.5 px-6 rounded-md border border-zinc-700"
-            >
-              Admin Portal
-            </Button>
+            {isAdmin && (
+              <Button
+                onClick={handleAdminClick}
+                data-testid="admin-portal-button"
+                className="bg-violet-600 hover:bg-violet-700 text-white font-medium py-2.5 px-6 rounded-md transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)]"
+              >
+                Admin Portal
+              </Button>
+            )}
             <Button
               onClick={handleLogout}
               data-testid="logout-button"

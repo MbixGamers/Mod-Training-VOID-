@@ -100,28 +100,98 @@ export const Admin = () => {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
-      <h1 className="text-3xl font-bold mb-8">Admin Portal</h1>
-      {submissions.length === 0 ? (
-        <div className="bg-zinc-900 p-8 rounded-lg border border-zinc-800 text-center">
-          <p className="text-zinc-400">No submissions found</p>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold" style={{ fontFamily: 'Rajdhani, sans-serif' }}>Admin Portal</h1>
+          <Button 
+            onClick={() => navigate('/')} 
+            className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700"
+          >
+            Back to Home
+          </Button>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {submissions.map((sub) => (
-            <div key={sub.id} className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold">{sub.username} ({sub.user_email})</p>
-                <p className="text-sm text-zinc-400">Score: {sub.score}% - {sub.passed ? 'PASSED' : 'FAILED'}</p>
-                <p className="text-xs text-zinc-500">Status: {sub.status}</p>
+
+        {submissions.length === 0 ? (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8 text-center">
+            <p className="text-zinc-400">No submissions yet</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {submissions.map((sub) => (
+              <div 
+                key={sub.id} 
+                className="bg-zinc-900 p-6 rounded-lg border border-zinc-800 hover:border-violet-500/50 transition-colors"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <p className="font-bold text-lg">{sub.username}</p>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        sub.status === 'pending' ? 'bg-yellow-600/20 text-yellow-400' :
+                        sub.status === 'accepted' ? 'bg-green-600/20 text-green-400' :
+                        'bg-red-600/20 text-red-400'
+                      }`}>
+                        {sub.status.toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-zinc-400 mb-1">{sub.user_email}</p>
+                    <p className="text-sm text-zinc-400 mb-1">User ID: {sub.user_id}</p>
+                    <div className="flex items-center gap-4 mt-3">
+                      <p className={`text-sm font-medium ${sub.passed ? 'text-green-400' : 'text-red-400'}`}>
+                        Score: {Math.round(sub.score)}% - {sub.passed ? 'PASSED' : 'FAILED'}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        Submitted: {new Date(sub.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {sub.status === 'pending' && (
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => handleAction(sub.id, 'accepted')} 
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Accept
+                      </Button>
+                      <Button 
+                        onClick={() => handleAction(sub.id, 'denied')} 
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Deny
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Show answers */}
+                <details className="mt-4">
+                  <summary className="cursor-pointer text-sm text-violet-400 hover:text-violet-300">
+                    View Answers ({sub.answers?.length || 0} questions)
+                  </summary>
+                  <div className="mt-3 space-y-2">
+                    {sub.answers?.map((answer, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`p-3 rounded border ${
+                          answer.is_correct ? 'border-green-600/30 bg-green-600/5' : 'border-red-600/30 bg-red-600/5'
+                        }`}
+                      >
+                        <p className="text-sm font-medium mb-1">
+                          Q{answer.question_number}: {answer.question}
+                        </p>
+                        <p className="text-xs text-zinc-400 font-mono">
+                          {answer.user_answer || 'No answer provided'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
               </div>
-              <div className="flex gap-2">
-                <Button onClick={() => handleAction(sub.id, 'accepted')} className="bg-green-600 hover:bg-green-700">Accept</Button>
-                <Button onClick={() => handleAction(sub.id, 'denied')} className="bg-red-600 hover:bg-red-700">Deny</Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

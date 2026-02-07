@@ -7,29 +7,30 @@ export const Callback = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
+    const handleAuthCallback = async () => {
       try {
-        // Check if there's a hash in the URL (OAuth callback)
+        // Check if we have auth parameters in URL
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        
-        // Also check for code parameter in query string (PKCE flow)
         const searchParams = new URLSearchParams(window.location.search);
-        const code = searchParams.get('code');
+        
+        const hasAuthParams = hashParams.has('access_token') || 
+                             hashParams.has('refresh_token') || 
+                             searchParams.has('code');
 
-        if (accessToken || code) {
-          // Let Supabase handle the session establishment
-          const { data: { session }, error } = await supabase.auth.getSession();
+        if (hasAuthParams) {
+          // Wait for Supabase to process the auth callback
+          const { data, error } = await supabase.auth.getSession();
           
           if (error) {
-            console.error('Error getting session:', error);
-            setError('Failed to authenticate. Please try again.');
-            setTimeout(() => navigate('/login'), 2000);
+            console.error('Auth error:', error);
+            setError('Authentication failed. Please try again.');
+            setTimeout(() => navigate('/login', { replace: true }), 2000);
             return;
           }
 
-          if (session) {
-            // Successfully authenticated, clean URL and redirect
+          if (data.session) {
+            console.log('Auth successful, redirecting to test page');
+            // Clean the URL and navigate to test
             window.history.replaceState({}, document.title, '/test');
             navigate('/test', { replace: true });
           } else {
@@ -41,40 +42,57 @@ export const Callback = () => {
                 navigate('/test', { replace: true });
               } else {
                 setError('Authentication incomplete. Please try logging in again.');
-                setTimeout(() => navigate('/login'), 2000);
+                setTimeout(() => navigate('/login', { replace: true }), 2000);
               }
             }, 1000);
           }
         } else {
-          // No auth params, check if already logged in
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
+          // If no auth params, check if already logged in
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData.session) {
             navigate('/test', { replace: true });
           } else {
-            setError('No authentication data found. Redirecting to login...');
-            setTimeout(() => navigate('/login'), 2000);
+            // No session found, redirect to login
+            setError('No active session. Redirecting to login...');
+            setTimeout(() => navigate('/login', { replace: true }), 1500);
           }
         }
       } catch (err) {
         console.error('Callback error:', err);
-        setError('An unexpected error occurred. Please try again.');
-        setTimeout(() => navigate('/login'), 2000);
+        setError('An error occurred. Please try again.');
+        setTimeout(() => navigate('/login', { replace: true }), 2000);
       }
     };
 
-    handleCallback();
+    handleAuthCallback();
+
+    // Also listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, !!session);
+      if (event === 'SIGNED_IN' && session) {
+        window.history.replaceState({}, document.title, '/test');
+        navigate('/test', { replace: true });
+      } else if (event === 'SIGNED_OUT') {
+        navigate('/login', { replace: true });
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <div className="text-center">
-        <div className="text-zinc-400 mb-4">
-          {error || 'Processing login...'}
-        </div>
-        {!error && (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
-          </div>
+        {error ? (
+          <>
+            <div className="text-red-400 mb-2">{error}</div>
+            <div className="text-zinc-500 text-sm">Redirecting...</div>
+          </>
+        ) : (
+          <>
+            <div className="text-zinc-400 mb-4">Processing login...</div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto"></div>
+          </>
         )}
       </div>
     </div>

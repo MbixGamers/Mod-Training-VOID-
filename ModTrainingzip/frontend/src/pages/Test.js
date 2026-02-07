@@ -69,7 +69,7 @@ export const Test = () => {
       await axios.post(`${BACKEND_URL}/api/submissions`, {
         user_id: user.id,
         user_email: user.email,
-        username: user.user_metadata?.name || user.email,
+        username: user.user_metadata?.full_name || user.user_metadata?.name || user.email,
         answers: evaluatedAnswers,
         score: score,
         passed: passed
@@ -84,6 +84,7 @@ export const Test = () => {
       });
     } catch (error) {
       console.error('Error submitting test:', error);
+      alert('Failed to submit test. Please try again.');
     }
   };
 
