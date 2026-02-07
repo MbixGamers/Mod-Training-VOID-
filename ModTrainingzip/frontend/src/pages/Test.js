@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://mod-training-void-backend-cbpz.onrender.com';
 
 export const Test = () => {
   const navigate = useNavigate();
@@ -66,7 +66,7 @@ export const Test = () => {
     const passed = score >= 80;
 
     try {
-      await axios.post('/api/submissions', {
+      await axios.post(`${BACKEND_URL}/api/submissions`, {
         user_id: user.id,
         user_email: user.email,
         username: user.user_metadata?.name || user.email,
