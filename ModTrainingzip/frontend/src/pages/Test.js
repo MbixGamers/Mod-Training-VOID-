@@ -20,7 +20,7 @@ export const Test = () => {
   useEffect(() => {
     // Clean up URL parameters (like ?code=...) if they exist
     if (window.location.search || window.location.hash) {
-      window.history.replaceState({}, document.title, window.location.pathname);
+      window.history.replaceState({}, document.title, '/test');
     }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
