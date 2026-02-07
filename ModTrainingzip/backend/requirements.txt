@@ -4,3 +4,8 @@ supabase
 requests
 gunicorn
 flask-cors
+fastapi
+uvicorn
+httpx
+python-dotenv
+pydantic
