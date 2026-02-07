@@ -7,5 +7,4 @@ flask-cors
 fastapi
 uvicorn
 httpx
-python-dotenv
 pydantic
