@@ -4,10 +4,11 @@ import { supabase } from '../lib/supabase';
 
 const Login = () => {
     const handleLogin = async () => {
+        const domain = window.location.origin;
         await supabase.auth.signInWithOAuth({
             provider: 'discord',
             options: {
-                redirectTo: 'http://localhost:5000/callback'
+                redirectTo: `${domain}/callback`
             }
         });
     };

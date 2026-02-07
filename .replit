@@ -1,3 +1,4 @@
+modules = ["nodejs-20"]
 [nix]
 channel = "stable-25_05"
 packages = ["unzip"]
@@ -21,13 +22,13 @@ args = "Frontend Server"
 name = "Frontend Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd ModTrainingzip/frontend && npm install && npm start"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ModTrainingzip/frontend && npm install --legacy-peer-deps && npm start"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
