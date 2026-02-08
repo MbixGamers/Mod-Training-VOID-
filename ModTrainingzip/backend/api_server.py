@@ -22,12 +22,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Admin user IDs (should match frontend)
+# Admin user IDs (should match frontend) - These are Discord User IDs
 ADMIN_USER_IDS = ['394600108846350346', '928635423465537579']
 
-# Discord bot configuration
+# Discord bot configuration - bot runs on same backend server
 DISCORD_BOT_URL = os.getenv('DISCORD_BOT_URL', 'http://localhost:8003')
 BOT_ROLE_ENDPOINT = f"{DISCORD_BOT_URL}/api/assign-role"
+
+# If running on same server, use localhost
+if 'render.com' in os.getenv('RENDER_EXTERNAL_URL', ''):
+    # On Render, bot runs on same instance at port 8003
+    BOT_ROLE_ENDPOINT = "http://localhost:8003/api/assign-role"
 
 # Data Models
 class TestAnswer(BaseModel):
@@ -165,27 +170,38 @@ async def admin_action(action: AdminAction):
     # If accepted and passed, assign Discord role
     if action.action == 'accepted' and submission.get('passed'):
         try:
-            # Get Discord user ID from submission (if available)
+            # Get Discord user ID from submission
+            # This should be the Discord provider_id, not Supabase user ID
             discord_user_id = submission.get('user_id')
+            
+            print(f"Attempting to assign role to Discord user: {discord_user_id}")
             
             if discord_user_id:
                 # Call Discord bot to assign role
-                async with httpx.AsyncClient() as client:
+                async with httpx.AsyncClient(timeout=30.0) as client:
                     response = await client.post(
                         BOT_ROLE_ENDPOINT,
                         json={
                             'user_id': discord_user_id,
                             'role_name': 'Verified Staff'
-                        },
-                        timeout=10.0
+                        }
                     )
                     
                     if response.status_code == 200:
-                        print(f"Successfully assigned role to user {discord_user_id}")
+                        result = response.json()
+                        print(f"✅ Successfully assigned role to user {discord_user_id}")
+                        print(f"Response: {result}")
                     else:
-                        print(f"Failed to assign role: {response.text}")
+                        print(f"❌ Failed to assign role: Status {response.status_code}")
+                        print(f"Response: {response.text}")
+            else:
+                print("⚠️ No Discord user ID found in submission")
+        except httpx.TimeoutException:
+            print(f"⏱️ Timeout while trying to assign role to {discord_user_id}")
         except Exception as e:
-            print(f"Error assigning Discord role: {e}")
+            print(f"💥 Error assigning Discord role: {e}")
+            import traceback
+            traceback.print_exc()
             # Don't fail the whole operation if role assignment fails
     
     return {

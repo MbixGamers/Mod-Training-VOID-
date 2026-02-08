@@ -66,8 +66,18 @@ export const Test = () => {
     const passed = score >= 80;
 
     try {
+      // Get Discord user ID from metadata
+      const discordUserId = user.user_metadata?.provider_id || user.id;
+      
+      console.log('Submitting test:', {
+        discordUserId,
+        email: user.email,
+        score,
+        passed
+      });
+      
       await axios.post(`${BACKEND_URL}/api/submissions`, {
-        user_id: user.id,
+        user_id: discordUserId,  // Use Discord user ID
         user_email: user.email,
         username: user.user_metadata?.full_name || user.user_metadata?.name || user.email,
         answers: evaluatedAnswers,
