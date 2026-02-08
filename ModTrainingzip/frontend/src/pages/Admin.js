@@ -26,25 +26,35 @@ export const Admin = () => {
         
         if (!session) {
           toast.error('Please log in to access admin portal');
-          navigate('/login');
-          return;
-        }
-
-        // Check Discord user ID from session
-        const discordUserId = session.user.user_metadata?.provider_id || session.user.id;
-        
-        if (!ADMIN_USER_IDS.includes(discordUserId)) {
-          toast.error('Unauthorized access - Admin privileges required');
           navigate('/');
           return;
         }
 
+        // Check Discord user ID from session metadata
+        // Discord provider_id is stored in user_metadata
+        const discordUserId = session.user.user_metadata?.provider_id;
+        
+        console.log('Admin check:', {
+          userId: session.user.id,
+          discordUserId: discordUserId,
+          metadata: session.user.user_metadata,
+          allowedIds: ADMIN_USER_IDS
+        });
+        
+        if (!discordUserId || !ADMIN_USER_IDS.includes(discordUserId)) {
+          toast.error('Unauthorized access - Admin privileges required');
+          console.log('Access denied - Discord ID not in admin list');
+          navigate('/');
+          return;
+        }
+
+        console.log('Admin access granted for Discord ID:', discordUserId);
         setIsAdmin(true);
         await fetchSubmissions();
       } catch (error) {
         console.error('Error checking admin status:', error);
         toast.error('Error verifying admin status');
-        navigate('/login');
+        navigate('/');
       }
     };
     

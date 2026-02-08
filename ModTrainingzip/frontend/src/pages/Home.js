@@ -114,7 +114,10 @@ export const Home = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        setIsAdmin(ADMIN_USER_IDS.includes(session.user.id));
+        // Check admin status using Discord provider_id
+        const discordUserId = session.user.user_metadata?.provider_id;
+        console.log('Home page - Discord ID:', discordUserId);
+        setIsAdmin(discordUserId && ADMIN_USER_IDS.includes(discordUserId));
       }
     });
   }, []);
