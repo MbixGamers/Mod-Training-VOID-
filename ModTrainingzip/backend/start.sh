@@ -9,7 +9,9 @@ echo "🚀 Starting VOID Mod Training Backend Services..."
 # Load environment variables (ignoring comments and empty lines)
 if [ -f .env ]; then
     echo "📋 Loading environment variables from .env"
-    export $(grep -v '^#' .env | grep -v '^$' | xargs)
+    set -a  # automatically export all variables
+    source <(grep -v '^#' .env | grep -v '^$' | sed 's/\r$//')
+    set +a  # stop automatically exporting
 fi
 
 # Check required environment variables
