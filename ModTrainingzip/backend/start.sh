@@ -6,10 +6,10 @@ set -e  # Exit on error
 
 echo "🚀 Starting VOID Mod Training Backend Services..."
 
-# Load environment variables
+# Load environment variables (ignoring comments and empty lines)
 if [ -f .env ]; then
     echo "📋 Loading environment variables from .env"
-    export $(cat .env | xargs)
+    export $(grep -v '^#' .env | grep -v '^$' | xargs)
 fi
 
 # Check required environment variables
