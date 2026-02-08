@@ -60,9 +60,9 @@ export const Callback = () => {
               window.history.replaceState({}, document.title, '/callback');
               setProcessing(false);
               
-              // Redirect to home page (which has the Begin Assessment button)
+              // Redirect to test page after successful authentication
               setTimeout(() => {
-                navigate('/', { replace: true });
+                navigate('/test', { replace: true });
               }, 500);
             }
             return;
@@ -89,7 +89,7 @@ export const Callback = () => {
             window.history.replaceState({}, document.title, '/callback');
             setProcessing(false);
             setTimeout(() => {
-              navigate('/', { replace: true });
+              navigate('/test', { replace: true });
             }, 500);
           }
         } else {
@@ -100,14 +100,14 @@ export const Callback = () => {
           if (sessionData?.session) {
             console.log('✅ Existing session found');
             if (isSubscribed) {
-              navigate('/', { replace: true });
+              navigate('/test', { replace: true });
             }
           } else {
             console.log('❌ No session found');
             if (isSubscribed) {
               setError('No active session. Redirecting...');
               setProcessing(false);
-              setTimeout(() => navigate('/', { replace: true }), 1500);
+              setTimeout(() => navigate('/login', { replace: true }), 1500);
             }
           }
         }

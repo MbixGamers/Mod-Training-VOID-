@@ -1,0 +1,50 @@
+services:
+  # Backend API + Discord Bot Service
+  - type: web
+    name: mod-training-void-backend
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && bash start_all.sh
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: DISCORD_SERVER_ID
+        sync: false
+      - key: DISCORD_REDIRECT_URI
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://mod-training-void.onrender.com
+      - key: DISCORD_BOT_URL
+        value: http://localhost:8003
+    healthCheckPath: /health
+
+  # Frontend React App
+  - type: web
+    name: mod-training-void-frontend
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s build -l 3000
+    envVars:
+      - key: REACT_APP_SUPABASE_URL
+        sync: false
+      - key: REACT_APP_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: REACT_APP_BACKEND_URL
+        value: https://mod-training-void-backend.onrender.com
+      - key: PORT
+        value: 3000
